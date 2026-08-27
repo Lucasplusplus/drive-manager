@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>  <!--this holds info about page-->
+    <title>Drive Manager</title>
+</head>
+<script>
+  console.log("page loaded");
+</script>
+<body> <!--holds everything actually seen-->
+
+    <h1>Create a Drive</h1>
+
+    <label>Drive name</label>
+
+    <input type="text" id="driveName">
+
+  <label>Start date</label>
+  <input type="date" id="startDate"> <!--date picker-->
+
+  <label>End date</label>
+  <input type="date" id="endDate">
+
+  <label>Partner type</label>
+  <select id="partnerType"> <!--select is a drop down w/ each option inside-->
+    <option value="nonprofit">Nonprofit</option>
+    <option value="individual">Individual</option>
+  </select>
+
+  <button id="createBtn">Create Drive</button>
+</body>
+</html>
