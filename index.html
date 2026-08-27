@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head>  <!--this holds info about page-->
-    <title>Drive Manager</title>
+
+<head> <!--this holds info about page-->
+  <title>Drive Manager</title>
 </head>
-<script>
-  console.log("page loaded");
-</script>
+
 <body> <!--holds everything actually seen-->
 
-    <h1>Create a Drive</h1>
+  <h1>Create a Drive</h1>
 
-    <label>Drive name</label>
+  <label>Drive name</label>
 
-    <input type="text" id="driveName">
+  <input type="text" id="driveName">
 
   <label>Start date</label>
   <input type="date" id="startDate"> <!--date picker-->
@@ -27,5 +26,23 @@
   </select>
 
   <button id="createBtn">Create Drive</button>
+  <script>
+      const drives = [];
+    document.getElementById("createBtn").addEventListener("click", function () {
+      const name = document.getElementById("driveName").value;
+      const start = document.getElementById("startDate").value;
+      const end = document.getElementById("endDate").value;
+      const partner = document.getElementById("partnerType").value;
+      const drive = {
+        name: name,
+        start: start,
+        end: end,
+        partner: partner
+      };
+
+      console.log(drive);
+    console.log(drives);
+    });
+  </script> <!--page that searches element by id and then runs function-->
 </body>
 </html>
