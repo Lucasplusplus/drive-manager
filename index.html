@@ -26,6 +26,8 @@
   </select>
 
   <button id="createBtn">Create Drive</button>
+  <h2>Drives</h2>
+  <div id="driveList"></div>
   <script>
       const drives = [];
     document.getElementById("createBtn").addEventListener("click", function () {
@@ -40,9 +42,19 @@
         partner: partner
       };
 
-      console.log(drive);
-    console.log(drives);
+      drives.push(drive);
+      console.log(drives);
+      renderDrives();
     });
+    function renderDrives() {
+  const list = document.getElementById("driveList");
+  list.innerHTML = "";
+
+  for (const drive of drives) {
+        list.innerHTML += "<p>" + drive.name + " (" + drive.start + " to " + drive.end + ") - " + drive.partner + "</p>";
+    }
+}
   </script> <!--page that searches element by id and then runs function-->
 </body>
 </html>
+show drive details on page
