@@ -54,35 +54,42 @@
       renderDrives();
     });
     document.getElementById("driveList").addEventListener("click", function (event) {
-  if (event.target.tagName !== "BUTTON") {
-    return;
-  }
+      if (event.target.tagName !== "BUTTON") {
+        return;
+      }
 
-  const driveId = event.target.dataset.id;
-  const drive = drives.find(d => d.id === Number(driveId));
-  const locName = document.getElementById("locName").value;
-  const locContact = document.getElementById("locContact").value;
+      const driveId = event.target.dataset.id;
+      const drive = drives.find(d => d.id === Number(driveId));
+      const locName = document.getElementById("locName").value;
+      const locContact = document.getElementById("locContact").value;
+      if (locName === "" || locContact === "") {
+      return;
+    }
 
-  const location = {
-    name: locName,
-    contact: locContact,
-    status: "pending",
-    pickups: []
-  };
+      const location = {
+        name: locName,
+        contact: locContact,
+        status: "pending",
+        pickups: []
+      };
 
-  drive.locations.push(location);
-  console.log(drives);
-  renderDrives();
-});
-    function renderDrives() {
+      drive.locations.push(location);
+          document.getElementById("locName").value = "";
+    document.getElementById("locContact").value = "";
+      console.log(drives);
+      renderDrives();
+    });
+       function renderDrives() {
       const list = document.getElementById("driveList");
       list.innerHTML = "";
 
       for (const drive of drives) {
-                list.innerHTML += "<p>" + drive.name + " (" + drive.start + " to " + drive.end + ") - " + drive.partner +
-  " <button data-id='" + drive.id + "'>Add Location</button></p>";
+        list.innerHTML += "<p>" + drive.name + " (" + drive.start + " to " + drive.end + ") - " + drive.partner +
+          " <button data-action='addloc' data-id='" + drive.id + "'>Add Location</button></p>";
+
+        for (const location of drive.locations) {
+          list.innerHTML += "<p>&nbsp;&nbsp;&nbsp;&nbsp;" + location.name + " - " + location.contact + " (" + location.status + ")" +
+            " <button data-action='confirm' data-drive='" + drive.id + "' data-loc='" + location.name + "'>Confirm</button></p>";
+        }
       }
     }
-  </script> <!--page that searches element by id and then runs function-->
-</body>
-</html>
