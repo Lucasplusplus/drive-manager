@@ -60,3 +60,17 @@
     function renderDrives() {
       const list = document.getElementById("driveList");
       list.innerHTML = "";
+            for (const drive of drives) {
+        list.innerHTML += "<p>" + drive.name + " (" + drive.start + " to " + drive.end + ") - " + drive.partner +
+          " <button data-action='addloc' data-id='" + drive.id + "'>Add Location</button></p>";
+
+        for (const location of drive.locations) {
+          list.innerHTML += "<p>&nbsp;&nbsp;&nbsp;&nbsp;" + location.name + " - " + location.contact + " (" + location.status + ")" +
+            " <button data-action='confirm' data-drive='" + drive.id + "' data-loc='" + location.name + "'>Confirm</button></p>";
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>
