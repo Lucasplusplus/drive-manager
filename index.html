@@ -1,45 +1,12 @@
-<!DOCTYPE html>
-<html>
-
-<head> <!--this holds info about page-->
-  <title>Drive Manager</title>
-</head>
-
-<body> <!--holds everything actually seen-->
-
-  <h1>Create a Drive</h1>
-
-  <label>Drive name</label>
-
-  <input type="text" id="driveName">
-
-  <label>Start date</label>
-  <input type="date" id="startDate"> <!--date picker-->
-
-  <label>End date</label>
-  <input type="date" id="endDate">
-
-  <label>Partner type</label>
-  <select id="partnerType"> <!--select is a drop down w/ each option inside-->
-    <option value="nonprofit">Nonprofit</option>
-    <option value="individual">Individual</option>
-  </select>
-
-  <button id="createBtn">Create Drive</button>
-  <h2>Drives</h2>
-  <div id="driveList"></div>
-  <h2>Add a Location</h2>
-  <label>Location name</label>
-  <input type="text" id="locName">
-  <label>Contact</label>
-  <input type="text" id="locContact">
   <script>
     const drives = [];
+
     document.getElementById("createBtn").addEventListener("click", function () {
       const name = document.getElementById("driveName").value;
       const start = document.getElementById("startDate").value;
       const end = document.getElementById("endDate").value;
       const partner = document.getElementById("partnerType").value;
+
       const drive = {
         id: Date.now(),
         name: name,
@@ -50,46 +17,46 @@
       };
 
       drives.push(drive);
-      console.log(drives);
       renderDrives();
     });
+
     document.getElementById("driveList").addEventListener("click", function (event) {
       if (event.target.tagName !== "BUTTON") {
         return;
       }
 
-      const driveId = event.target.dataset.id;
-      const drive = drives.find(d => d.id === Number(driveId));
-      const locName = document.getElementById("locName").value;
-      const locContact = document.getElementById("locContact").value;
-      if (locName === "" || locContact === "") {
-      return;
-    }
+      const action = event.target.dataset.action;
 
-      const location = {
-        name: locName,
-        contact: locContact,
-        status: "pending",
-        pickups: []
-      };
+      if (action === "addloc") {
+        const drive = drives.find(d => d.id === Number(event.target.dataset.id));
+        const locName = document.getElementById("locName").value;
+        const locContact = document.getElementById("locContact").value;
 
-      drive.locations.push(location);
-          document.getElementById("locName").value = "";
-    document.getElementById("locContact").value = "";
-      console.log(drives);
-      renderDrives();
+        if (locName === "" || locContact === "") {
+          return;
+        }
+
+        const location = {
+          name: locName,
+          contact: locContact,
+          status: "pending",
+          pickups: []
+        };
+
+        drive.locations.push(location);
+        document.getElementById("locName").value = "";
+        document.getElementById("locContact").value = "";
+        renderDrives();
+      }
+
+      if (action === "confirm") {
+        const drive = drives.find(d => d.id === Number(event.target.dataset.drive));
+        const location = drive.locations.find(l => l.name === event.target.dataset.loc);
+        location.status = "confirmed";
+        renderDrives();
+      }
     });
-       function renderDrives() {
+
+    function renderDrives() {
       const list = document.getElementById("driveList");
       list.innerHTML = "";
-
-      for (const drive of drives) {
-        list.innerHTML += "<p>" + drive.name + " (" + drive.start + " to " + drive.end + ") - " + drive.partner +
-          " <button data-action='addloc' data-id='" + drive.id + "'>Add Location</button></p>";
-
-        for (const location of drive.locations) {
-          list.innerHTML += "<p>&nbsp;&nbsp;&nbsp;&nbsp;" + location.name + " - " + location.contact + " (" + location.status + ")" +
-            " <button data-action='confirm' data-drive='" + drive.id + "' data-loc='" + location.name + "'>Confirm</button></p>";
-        }
-      }
-    }
