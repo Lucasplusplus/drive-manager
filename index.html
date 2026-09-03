@@ -35,11 +35,13 @@
   <input type="text" id="locContact">
   <script>
     const drives = [];
+
     document.getElementById("createBtn").addEventListener("click", function () {
       const name = document.getElementById("driveName").value;
       const start = document.getElementById("startDate").value;
       const end = document.getElementById("endDate").value;
       const partner = document.getElementById("partnerType").value;
+
       const drive = {
         id: Date.now(),
         name: name,
@@ -50,9 +52,9 @@
       };
 
       drives.push(drive);
-      console.log(drives);
       renderDrives();
     });
+
     document.getElementById("driveList").addEventListener("click", function (event) {
       if (event.target.tagName !== "BUTTON") {
         return;
@@ -88,7 +90,6 @@
         location.status = "confirmed";
         renderDrives();
       }
-
       if (action === "pickedup") {
         const drive = drives.find(d => d.id === Number(event.target.dataset.drive));
         const location = drive.locations.find(l => l.name === event.target.dataset.loc);
@@ -96,13 +97,11 @@
         renderDrives();
       }
     });
+
     function renderDrives() {
-      // wipes the screen clear and re-render the drives
       const list = document.getElementById("driveList");
       list.innerHTML = "";
-
-      for (const drive of drives) { 
-        // adds a paragraph for each drive, with a button to add a location
+      for (const drive of drives) {
         list.innerHTML += "<p>" + drive.name + " (" + drive.start + " to " + drive.end + ") - " + drive.partner +
           " <button data-action='addloc' data-id='" + drive.id + "'>Add Location</button></p>";
 
