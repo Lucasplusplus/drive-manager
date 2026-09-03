@@ -98,19 +98,27 @@
       }
     });
 
+    function isActive(drive) {
+      const today = new Date().toISOString().slice(0, 10);
+      return drive.start <= today && today <= drive.end;
+    }
+
     function renderDrives() {
       const list = document.getElementById("driveList");
       list.innerHTML = "";
       for (const drive of drives) {
+        const active = isActive(drive);
         list.innerHTML += "<p>" + drive.name + " (" + drive.start + " to " + drive.end + ") - " + drive.partner +
+          " - " + (active ? "active" : "not active") +
           " <button data-action='addloc' data-id='" + drive.id + "'>Add Location</button></p>";
 
         for (const location of drive.locations) {
           // adds a paragraph for each location, with a button to confirm the pickup
           list.innerHTML += "<p>&nbsp;&nbsp;&nbsp;&nbsp;" + location.name + " - " + location.contact + " (" + location.status + ")" +
-            " - last pickup: " + location.lastPickup +
+            (location.lastPickup ? " - last pickup: " + location.lastPickup : "") +
             " <button data-action='confirm' data-drive='" + drive.id + "' data-loc='" + location.name + "'>Confirm</button>" +
-            " <button data-action='pickedup' data-drive='" + drive.id + "' data-loc='" + location.name + "'>Picked Up</button></p>";
+            (active ? " <button data-action='pickedup' data-drive='" + drive.id + "' data-loc='" + location.name + "'>Picked Up</button>" : "") +
+            "</p>";
         }
       }
     }
