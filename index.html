@@ -58,38 +58,64 @@
         return;
       }
 
-      const driveId = event.target.dataset.id;
-      const drive = drives.find(d => d.id === Number(driveId));
-      const locName = document.getElementById("locName").value;
-      const locContact = document.getElementById("locContact").value;
-      if (locName === "" || locContact === "") {
-      return;
-    }
+      const action = event.target.dataset.action;
 
-      const location = {
-        name: locName,
-        contact: locContact,
-        status: "pending",
-        pickups: []
-      };
+      if (action === "addloc") {
+        const drive = drives.find(d => d.id === Number(event.target.dataset.id));
+        const locName = document.getElementById("locName").value;
+        const locContact = document.getElementById("locContact").value;
 
-      drive.locations.push(location);
-          document.getElementById("locName").value = "";
-    document.getElementById("locContact").value = "";
-      console.log(drives);
-      renderDrives();
+        if (locName === "" || locContact === "") {
+          return;
+        }
+
+        const location = {
+          name: locName,
+          contact: locContact,
+          status: "pending",
+          pickups: []
+        };
+
+        drive.locations.push(location);
+        document.getElementById("locName").value = "";
+        document.getElementById("locContact").value = "";
+        renderDrives();
+      }
+
+      if (action === "confirm") {
+        const drive = drives.find(d => d.id === Number(event.target.dataset.drive));
+        const location = drive.locations.find(l => l.name === event.target.dataset.loc);
+        location.status = "confirmed";
+        renderDrives();
+      }
+
+      if (action === "pickedup") {
+        const drive = drives.find(d => d.id === Number(event.target.dataset.drive));
+        const location = drive.locations.find(l => l.name === event.target.dataset.loc);
+        location.lastPickup = new Date().toISOString().slice(0, 10);
+        renderDrives();
+      }
     });
-       function renderDrives() {
+    function renderDrives() {
+      // wipes the screen clear and re-render the drives
       const list = document.getElementById("driveList");
       list.innerHTML = "";
 
-      for (const drive of drives) {
+      for (const drive of drives) { 
+        // adds a paragraph for each drive, with a button to add a location
         list.innerHTML += "<p>" + drive.name + " (" + drive.start + " to " + drive.end + ") - " + drive.partner +
           " <button data-action='addloc' data-id='" + drive.id + "'>Add Location</button></p>";
 
         for (const location of drive.locations) {
+          // adds a paragraph for each location, with a button to confirm the pickup
           list.innerHTML += "<p>&nbsp;&nbsp;&nbsp;&nbsp;" + location.name + " - " + location.contact + " (" + location.status + ")" +
-            " <button data-action='confirm' data-drive='" + drive.id + "' data-loc='" + location.name + "'>Confirm</button></p>";
+            " - last pickup: " + location.lastPickup +
+            " <button data-action='confirm' data-drive='" + drive.id + "' data-loc='" + location.name + "'>Confirm</button>" +
+            " <button data-action='pickedup' data-drive='" + drive.id + "' data-loc='" + location.name + "'>Picked Up</button></p>";
         }
       }
     }
+  </script>
+</body>
+
+</html>
