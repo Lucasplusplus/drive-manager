@@ -34,7 +34,23 @@
   <label>Contact</label>
   <input type="text" id="locContact">
   <script>
-    const drives = [];
+    function saveDrives() {
+      localStorage.setItem("driveManagerData", JSON.stringify(drives));
+    }
+
+    function loadDrives() {
+      const stored = localStorage.getItem("driveManagerData");
+      if (stored === null) {
+        return [];
+      }
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        return [];
+      }
+    }
+
+    const drives = loadDrives();
 
     document.getElementById("createBtn").addEventListener("click", function () {
       const name = document.getElementById("driveName").value;
@@ -52,6 +68,7 @@
       };
 
       drives.push(drive);
+      saveDrives();
       renderDrives();
     });
 
@@ -81,6 +98,7 @@
         drive.locations.push(location);
         document.getElementById("locName").value = "";
         document.getElementById("locContact").value = "";
+        saveDrives();
         renderDrives();
       }
 
@@ -88,12 +106,14 @@
         const drive = drives.find(d => d.id === Number(event.target.dataset.drive));
         const location = drive.locations.find(l => l.name === event.target.dataset.loc);
         location.status = "confirmed";
+        saveDrives();
         renderDrives();
       }
       if (action === "pickedup") {
         const drive = drives.find(d => d.id === Number(event.target.dataset.drive));
         const location = drive.locations.find(l => l.name === event.target.dataset.loc);
         location.lastPickup = new Date().toISOString().slice(0, 10);
+        saveDrives();
         renderDrives();
       }
     });
@@ -122,6 +142,8 @@
         }
       }
     }
+
+    renderDrives();
   </script>
 </body>
 
