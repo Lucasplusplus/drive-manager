@@ -1,38 +1,462 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
-<head> <!--this holds info about page-->
-  <title>Drive Manager</title>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driveline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAF7F3;
+      --ink: #171412;
+      --ink-soft: #55504b;
+      --accent: #DC4A2A;
+      --line: #E0DAD2;
+      --radius: 14px;
+
+      --space-1: 0.5rem;
+      --space-2: 1rem;
+      --space-3: 1.75rem;
+      --space-4: 2.5rem;
+      --space-5: 4rem;
+      --space-6: 6rem;
+
+      --sidebar-width: 300px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Quicksand", -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* --- App shell --- */
+    .app {
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      padding: var(--space-3);
+    }
+
+    .nav-item {
+      flex: 1 1 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: var(--space-3);
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav-item:hover {
+      background: rgba(23, 20, 18, 0.04);
+    }
+
+    .nav-item.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .nav-item.active:hover {
+      background: var(--accent);
+    }
+
+    .content {
+      margin-left: var(--sidebar-width);
+      padding: var(--space-5) var(--space-4);
+      min-height: 100vh;
+    }
+
+    .panel {
+      display: none;
+      max-width: 640px;
+    }
+
+    .content[data-view="guides"] .panel[data-panel="guides"],
+    .content[data-view="drives"] .panel[data-panel="drives"],
+    .content[data-view="advice"] .panel[data-panel="advice"] {
+      display: block;
+    }
+
+    .panel h1 {
+      font-size: 1.9rem;
+      letter-spacing: -0.01em;
+      margin: 0 0 var(--space-4);
+      font-weight: 700;
+    }
+
+    .panel h2 {
+      font-size: 1.3rem;
+      letter-spacing: -0.01em;
+      margin: var(--space-5) 0 var(--space-2);
+      font-weight: 700;
+    }
+
+    .panel label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin: var(--space-2) 0 var(--space-1);
+    }
+
+    .panel input[type="text"],
+    .panel input[type="date"],
+    .panel input[type="number"],
+    .panel select {
+      display: block;
+      width: 100%;
+      max-width: 360px;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--ink);
+      background: #FFFFFF;
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) - 4px);
+      padding: 0.6em 0.85em;
+    }
+
+    /* --- Buttons (shared visual language with landing.html) --- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 24px;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid transparent;
+      cursor: pointer;
+      margin-top: var(--space-2);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background: #c43f21;
+    }
+
+    #driveList {
+      margin-top: var(--space-2);
+    }
+
+    /* --- Pills --- */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15em 0.7em;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .pill-accent {
+      background: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .pill-neutral {
+      background: rgba(23, 20, 18, 0.07);
+      color: var(--ink-soft);
+    }
+
+    /* --- Drive card --- */
+    .drive-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: var(--space-3);
+      margin-bottom: var(--space-3);
+      background: #FFFFFF;
+    }
+
+    .drive-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .drive-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 var(--space-1);
+    }
+
+    .drive-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: var(--ink-soft);
+    }
+
+    .drive-actions {
+      display: flex;
+      gap: var(--space-1);
+      flex-shrink: 0;
+    }
+
+    .btn-drive {
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--ink);
+      background: #FFFFFF;
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) - 6px);
+      padding: 0.5em 0.9em;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-drive:hover {
+      background: rgba(23, 20, 18, 0.04);
+    }
+
+    .btn-drive-danger {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* --- Locations nested in a drive --- */
+    .drive-locations {
+      margin-top: var(--space-3);
+      margin-left: var(--space-3);
+    }
+
+    .location-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      padding: var(--space-2) 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .location-row:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .location-main {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3em;
+    }
+
+    .location-primary {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .location-contact-text {
+      font-weight: 400;
+      color: var(--ink-soft);
+      font-size: 0.85rem;
+    }
+
+    .location-pickup {
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+    }
+
+    .location-actions {
+      display: flex;
+      gap: 0.4em;
+      flex-wrap: wrap;
+    }
+
+    .btn-loc {
+      font-family: inherit;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.3em 0.75em;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-loc:hover {
+      background: rgba(23, 20, 18, 0.05);
+      color: var(--ink);
+    }
+
+    /* --- Inline add-location form --- */
+    .location-form {
+      margin-top: var(--space-2);
+      padding: var(--space-2);
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) - 4px);
+      background: rgba(23, 20, 18, 0.02);
+    }
+
+    .location-form label {
+      margin-top: 0;
+    }
+
+    .location-form-actions {
+      display: flex;
+      gap: var(--space-1);
+      margin-top: var(--space-2);
+    }
+
+    .location-form-actions .btn {
+      margin-top: 0;
+    }
+
+    @media (min-width: 768px) {
+      .panel {
+        max-width: 1100px;
+      }
+
+      .panel p {
+        max-width: 65ch;
+      }
+
+      .panel input[type="text"],
+      .panel input[type="date"],
+      .panel input[type="number"],
+      .panel select {
+        max-width: 480px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .sidebar {
+        position: static;
+        width: auto;
+        flex-direction: row;
+        gap: var(--space-2);
+        padding: var(--space-2);
+      }
+
+      .nav-item {
+        padding: var(--space-2);
+        font-size: 0.95rem;
+        justify-content: center;
+        text-align: center;
+        border-radius: 16px;
+      }
+
+      .content {
+        margin-left: 0;
+        padding: var(--space-4) var(--space-3);
+      }
+
+      .drive-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .drive-actions {
+        width: 100%;
+      }
+
+      .drive-actions .btn-drive {
+        flex: 1;
+      }
+
+      .drive-locations {
+        margin-left: 0;
+      }
+    }
+  </style>
 </head>
 
-<body> <!--holds everything actually seen-->
+<body>
 
-  <h1>Create a Drive</h1>
+  <div class="app">
+    <nav class="sidebar">
+      <button class="nav-item active" data-nav="drives">Drives</button>
+      <button class="nav-item" data-nav="guides">Guides</button>
+      <button class="nav-item" data-nav="advice">Advice</button>
+    </nav>
 
-  <label>Drive name</label>
+    <main class="content" data-view="drives">
 
-  <input type="text" id="driveName">
+      <section class="panel" data-panel="guides">
+        <h1>Guides</h1>
+      </section>
 
-  <label>Start date</label>
-  <input type="date" id="startDate"> <!--date picker-->
+      <section class="panel" data-panel="drives">
+        <h1>Create a Drive</h1>
 
-  <label>End date</label>
-  <input type="date" id="endDate">
+        <label>Drive name</label>
 
-  <label>Partner type</label>
-  <select id="partnerType"> <!--select is a drop down w/ each option inside-->
-    <option value="nonprofit">Nonprofit</option>
-    <option value="individual">Individual</option>
-  </select>
+        <input type="text" id="driveName">
 
-  <button id="createBtn">Create Drive</button>
-  <h2>Drives</h2>
-  <div id="driveList"></div>
-  <h2>Add a Location</h2>
-  <label>Location name</label>
-  <input type="text" id="locName">
-  <label>Contact</label>
-  <input type="text" id="locContact">
+        <label>Start date</label>
+        <input type="date" id="startDate"> <!--date picker-->
+
+        <label>End date</label>
+        <input type="date" id="endDate">
+
+        <label>Partner type</label>
+        <select id="partnerType"> <!--select is a drop down w/ each option inside-->
+          <option value="nonprofit">Nonprofit</option>
+          <option value="individual">Individual</option>
+        </select>
+
+        <button id="createBtn" class="btn btn-primary">Create Drive</button>
+        <h2>Drives</h2>
+        <div id="driveList"></div>
+      </section>
+
+      <section class="panel" data-panel="advice">
+        <h1>Advice</h1>
+      </section>
+
+    </main>
+  </div>
+
   <script>
     function saveDrives() {
       localStorage.setItem("driveManagerData", JSON.stringify(drives));
@@ -51,6 +475,7 @@
     }
 
     const drives = loadDrives();
+    let openLocationFormId = null;
 
     document.getElementById("createBtn").addEventListener("click", function () {
       const name = document.getElementById("driveName").value;
@@ -80,9 +505,20 @@
       const action = event.target.dataset.action;
 
       if (action === "addloc") {
-        const drive = drives.find(d => d.id === Number(event.target.dataset.id));
-        const locName = document.getElementById("locName").value;
-        const locContact = document.getElementById("locContact").value;
+        const driveId = Number(event.target.dataset.id);
+        openLocationFormId = (openLocationFormId === driveId) ? null : driveId;
+        renderDrives();
+      }
+
+      if (action === "canceladdloc") {
+        openLocationFormId = null;
+        renderDrives();
+      }
+
+      if (action === "savelocation") {
+        const drive = drives.find(d => d.id === Number(event.target.dataset.drive));
+        const locName = document.getElementById("inlineLocName").value;
+        const locContact = document.getElementById("inlineLocContact").value;
 
         if (locName === "" || locContact === "") {
           return;
@@ -97,8 +533,7 @@
         };
 
         drive.locations.push(location);
-        document.getElementById("locName").value = "";
-        document.getElementById("locContact").value = "";
+        openLocationFormId = null;
         saveDrives();
         renderDrives();
       }
@@ -163,26 +598,87 @@
       list.innerHTML = "";
       for (const drive of drives) {
         const active = isActive(drive);
-        list.innerHTML += "<p>" + drive.name + " (" + drive.start + " to " + drive.end + ") - " + drive.partner +
-          " - " + (active ? "active" : "not active") +
-          " <button data-action='addloc' data-id='" + drive.id + "'>Add Location</button>" +
-          " <button data-action='deldrive' data-id='" + drive.id + "'>Delete Drive</button></p>";
+
+        let html = "<div class='drive-card'>";
+
+        html += "<div class='drive-header'>";
+        html += "<div class='drive-header-main'>";
+        html += "<h3 class='drive-name'>" + drive.name + "</h3>";
+        html += "<div class='drive-meta'>";
+        html += "<span class='meta-item'>" + drive.start + " to " + drive.end + "</span>";
+        html += "<span class='meta-item'>" + drive.partner + "</span>";
+        html += "<span class='pill " + (active ? "pill-accent" : "pill-neutral") + "'>" + (active ? "Active" : "Not active") + "</span>";
+        html += "</div>";
+        html += "</div>";
+        html += "<div class='drive-actions'>";
+        html += "<button class='btn-drive' data-action='addloc' data-id='" + drive.id + "'>Add Location</button>";
+        html += "<button class='btn-drive btn-drive-danger' data-action='deldrive' data-id='" + drive.id + "'>Delete Drive</button>";
+        html += "</div>";
+        html += "</div>";
+
+        html += "<div class='drive-locations'>";
 
         for (const location of drive.locations) {
-          // adds a paragraph for each location, with a button to confirm the pickup
-          list.innerHTML += "<p>&nbsp;&nbsp;&nbsp;&nbsp;" + location.name + " - " + location.contact + " (" + location.status + ")" +
-            (location.lastPickup ? " - last pickup: " + location.lastPickup : "") +
-            " <button data-action='confirm' data-drive='" + drive.id + "' data-loc='" + location.id + "'>Confirm</button>" +
-            (active ? " <button data-action='pickedup' data-drive='" + drive.id + "' data-loc='" + location.id + "'>Picked Up</button>" : "") +
-            " <button data-action='delloc' data-drive='" + drive.id + "' data-loc='" + location.id + "'>Delete</button>" +
-            " <button data-action='editcontact' data-drive='" + drive.id + "' data-loc='" + location.id + "'>Edit Contact</button>" +
-            "</p>";
+          html += "<div class='location-row'>";
+          html += "<div class='location-main'>";
+          html += "<div class='location-primary'>" + location.name +
+            " <span class='location-contact-text'>" + location.contact + "</span>" +
+            " <span class='pill " + (location.status === "confirmed" ? "pill-accent" : "pill-neutral") + "'>" + location.status + "</span>" +
+            "</div>";
+          if (location.lastPickup) {
+            html += "<div class='location-pickup'>last pickup: " + location.lastPickup + "</div>";
+          }
+          html += "</div>";
+          html += "<div class='location-actions'>";
+          html += "<button class='btn-loc' data-action='confirm' data-drive='" + drive.id + "' data-loc='" + location.id + "'>Confirm</button>";
+          if (active) {
+            html += "<button class='btn-loc' data-action='pickedup' data-drive='" + drive.id + "' data-loc='" + location.id + "'>Picked Up</button>";
+          }
+          html += "<button class='btn-loc' data-action='delloc' data-drive='" + drive.id + "' data-loc='" + location.id + "'>Delete</button>";
+          html += "<button class='btn-loc' data-action='editcontact' data-drive='" + drive.id + "' data-loc='" + location.id + "'>Edit Contact</button>";
+          html += "</div>";
+          html += "</div>";
         }
+
+        if (openLocationFormId === drive.id) {
+          html += "<div class='location-form'>";
+          html += "<label>Location name</label>";
+          html += "<input type='text' id='inlineLocName'>";
+          html += "<label>Contact</label>";
+          html += "<input type='text' id='inlineLocContact'>";
+          html += "<div class='location-form-actions'>";
+          html += "<button class='btn btn-primary' data-action='savelocation' data-drive='" + drive.id + "'>Save</button>";
+          html += "<button class='btn-drive' data-action='canceladdloc'>Cancel</button>";
+          html += "</div>";
+          html += "</div>";
+        }
+
+        html += "</div>";
+        html += "</div>";
+
+        list.innerHTML += html;
       }
     }
 
     renderDrives();
   </script>
+
+  <script>
+    (function () {
+      const content = document.querySelector(".content");
+      const navItems = document.querySelectorAll(".nav-item");
+
+      navItems.forEach(function (item) {
+        item.addEventListener("click", function () {
+          content.dataset.view = item.dataset.nav;
+          navItems.forEach(function (el) {
+            el.classList.toggle("active", el === item);
+          });
+        });
+      });
+    })();
+  </script>
+
 </body>
 
 </html>
